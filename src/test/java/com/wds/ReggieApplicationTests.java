@@ -1,11 +1,13 @@
 package com.wds;
 
+import com.wds.common.Utils.RedisUtil;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
@@ -43,9 +45,14 @@ class ReggieApplicationTests {
     @Test
     void redisTest() {
 //        ValueOperations<Object, Object> ops = template.opsForValue();
-//        ops.set("zhangsan", "123",30000);
+//        ops.set("zhangsan", "123");
+//        ops.set("lisi", "123");
 //        System.out.println(ops.get("zhangsan"));
+
+//        RedisUtil.clearCache("ddd", template);
+//        System.out.println(template.keys("*"));
     }
+
 
 
 }

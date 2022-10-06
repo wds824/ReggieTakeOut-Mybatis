@@ -18,7 +18,7 @@ public class RedisConfig {
     public RedisTemplate<Object,Object> redisTemplate(RedisConnectionFactory connectionFactory){
         RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
         //key 使用 String 序列化
-//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
 
         redisTemplate.setConnectionFactory(connectionFactory);
         return redisTemplate;

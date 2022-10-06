@@ -6,7 +6,6 @@ spring:
     url: jdbc:mysql://localhost:3306/reggie?useSSL=false
     username: root
     password: 123456
-
   redis:
     database: 0
     host: localhost
@@ -21,5 +20,6 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #  指定 mybatis mapper文件位置
   mapper-locations: classpath:mapper/*.xml
+
 reggie:
   basePath: D:\reggie\img\

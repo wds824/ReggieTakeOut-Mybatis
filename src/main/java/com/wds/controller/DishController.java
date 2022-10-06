@@ -1,6 +1,7 @@
 package com.wds.controller;
 
 import com.wds.common.JsonResult;
+import com.wds.common.Utils.RedisUtil;
 import com.wds.dto.DishDto;
 import com.wds.dto.Page;
 import com.wds.entity.DishFlavor;
@@ -82,7 +83,7 @@ public class DishController {
      */
     @PutMapping
     public JsonResult update(@RequestBody DishDto dto) {
-        clearDishCache();
+        RedisUtil.clearCache("dish_*", redisTemplate);
 
         service.update(dto);
         dishFlavorService.updateFlavors(dto);
@@ -95,7 +96,7 @@ public class DishController {
      */
     @PostMapping("/status/{status}")
     public JsonResult updateStatus(@PathVariable int status, Long[] ids) {
-        clearDishCache();
+        RedisUtil.clearCache("dish_*", redisTemplate);
 
         List<Long> idList = Arrays.asList(ids);
         service.updateStatus(idList, status);
@@ -110,7 +111,8 @@ public class DishController {
      */
     @PostMapping
     public JsonResult save(@RequestBody DishDto dto) {
-        clearDishCache();
+        RedisUtil.clearCache("dish_*", redisTemplate);
+
 
         service.save(dto);
         dishFlavorService.saveFlavorsFromDto(dto);
@@ -127,7 +129,8 @@ public class DishController {
      */
     @DeleteMapping
     public JsonResult remove(Long[] ids) {
-        clearDishCache();
+        RedisUtil.clearCache("dish_*", redisTemplate);
+
 
         List<Long> list = Arrays.asList(ids);
         service.removeById(list);
@@ -162,12 +165,12 @@ public class DishController {
     /**
      * 清空 dish下的缓存
      */
-    private void clearDishCache() {
-        Set<Object> keys = redisTemplate.keys("dish_*");
-        if (keys != null) {
-            log.info("清空缓存： {}", "dish_*");
-            redisTemplate.delete(keys);
-        }
-    }
+//    private void clearDishCache() {
+//        Set<Object> keys = redisTemplate.keys("dish_*");
+//        if (keys != null) {
+//            log.info("清空缓存： {}", "dish_*");
+//            redisTemplate.delete(keys);
+//        }
+//    }
 
 }

@@ -27,9 +27,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private CategoryMapper mapper;
 
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
-
     @Override
     public Page page(int page, int pageSize) {
         String cacheName = "category_Page_" + page + "_" + pageSize;

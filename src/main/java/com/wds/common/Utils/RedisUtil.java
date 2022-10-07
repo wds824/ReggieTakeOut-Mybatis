@@ -1,8 +1,10 @@
 package com.wds.common.Utils;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
@@ -17,9 +19,11 @@ import java.util.Set;
 @Slf4j
 public class RedisUtil {
 
-    @Autowired
-    private static RedisTemplate<Object, Object> template;
 
+    private static RedisTemplate<Object, Object> template = null;
+    static {
+        template = SpringUtil.getBean("redisTemplate");
+    }
     public static void clearCache(String cacheKey) {
         Set<Object> keys = template.keys(cacheKey);
         if (keys != null) {
@@ -44,7 +48,7 @@ public class RedisUtil {
     }
 
     public static void saveCache(String cacheName, Object data){
-        log.info("清空缓存: {}", cacheName);
+        log.info("存入缓存: {}", cacheName);
         template.opsForValue().set(cacheName, data);
     }
 }

@@ -10,14 +10,14 @@ spring:
     database: 0
     host: localhost
     port: 6379
-
-  cache:
-    redis:
-      time-to-live: 2000000
+# spring cache 生效
+#  cache:
+#    redis:
+#      time-to-live: 2000000
 
 mybatis:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #  指定 mybatis mapper文件位置
   mapper-locations: classpath:mapper/*.xml
 

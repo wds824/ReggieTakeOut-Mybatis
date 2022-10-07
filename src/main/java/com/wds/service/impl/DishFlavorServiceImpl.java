@@ -26,9 +26,6 @@ public class DishFlavorServiceImpl implements DishFlavorService {
     @Autowired
     private DishFlavorMapper mapper;
 
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
-
     @Override
     public List<DishFlavor> getFlavors(Long id) {
         if (id == null) {

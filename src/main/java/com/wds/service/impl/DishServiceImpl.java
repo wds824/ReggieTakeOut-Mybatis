@@ -29,8 +29,7 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishMapper mapper;
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+
 
 
     /**

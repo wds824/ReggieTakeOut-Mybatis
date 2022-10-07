@@ -1,7 +1,6 @@
 package com.wds.controller;
 
 import com.wds.common.JsonResult;
-import com.wds.common.Utils.RedisUtil;
 import com.wds.dto.DishDto;
 import com.wds.dto.Page;
 import com.wds.entity.DishFlavor;
@@ -9,13 +8,10 @@ import com.wds.service.DishFlavorService;
 import com.wds.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author WDs , wds8.24@outlook.com
@@ -33,41 +29,20 @@ public class DishController {
     @Autowired
     private DishFlavorService dishFlavorService;
 
-    @Autowired
-    private RedisTemplate<Object, Object> redisTemplate;
+
 
     /**
-     * 缓存机制: 在 name == null 的时候使用缓存，减少冗余缓存
+     *   分页查询
      */
     @GetMapping("/page")
     public JsonResult getPage(int page, int pageSize, String name) {
-        String cacheName = "dish_page_" + page + "_" + pageSize; //cache name
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();  //redis ops
-        if (name == null) {
-            //    读取缓存
-            Object o = ops.get(cacheName);
-            if (o != null) {
-                log.info("读取缓存: {}", cacheName);
-                return JsonResult.ok(o);
-            }
-
-        }
 
         Page result = service.getPage(page, pageSize, name);
-
-        //   创建缓存
-        if (name == null) {
-            log.info("创建缓存: {}", cacheName);
-            ops.set(cacheName, result);
-        }
-
         return JsonResult.ok(result);
     }
 
     /**
      * 修改菜品的回显
-     * <p>
-     * redis: update前操作，不进行缓存
      */
     @GetMapping("/{id}")
     public JsonResult getById(@PathVariable Long id) {
@@ -83,7 +58,7 @@ public class DishController {
      */
     @PutMapping
     public JsonResult update(@RequestBody DishDto dto) {
-        RedisUtil.clearCache("dish_*", redisTemplate);
+
 
         service.update(dto);
         dishFlavorService.updateFlavors(dto);
@@ -96,7 +71,6 @@ public class DishController {
      */
     @PostMapping("/status/{status}")
     public JsonResult updateStatus(@PathVariable int status, Long[] ids) {
-        RedisUtil.clearCache("dish_*", redisTemplate);
 
         List<Long> idList = Arrays.asList(ids);
         service.updateStatus(idList, status);
@@ -111,7 +85,6 @@ public class DishController {
      */
     @PostMapping
     public JsonResult save(@RequestBody DishDto dto) {
-        RedisUtil.clearCache("dish_*", redisTemplate);
 
 
         service.save(dto);
@@ -129,7 +102,6 @@ public class DishController {
      */
     @DeleteMapping
     public JsonResult remove(Long[] ids) {
-        RedisUtil.clearCache("dish_*", redisTemplate);
 
 
         List<Long> list = Arrays.asList(ids);
@@ -139,30 +111,21 @@ public class DishController {
     }
 
     /**
-     * 开启缓存
+     * 前台调用
      */
     @GetMapping("/list")
     public JsonResult list(Long categoryId) {
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
-        String cacheName = "dish_list_" + categoryId;
-//read
-        Object o = ops.get(cacheName);
-        if (o != null) {
-            log.info("读取缓存: {}", cacheName);
-            return JsonResult.ok(o);
-        }
+
 
         List<DishDto> dishDtos = service.getByCategoryId(categoryId);
         for (DishDto dto : dishDtos) {
             dto.setFlavors(dishFlavorService.getFlavors(dto.getId()));
         }
-//write
-        ops.set(cacheName, dishDtos);
-        log.info("写入缓存: {}", cacheName);
+
         return JsonResult.ok(dishDtos);
     }
 
-    /**
+    /*
      * 清空 dish下的缓存
      */
 //    private void clearDishCache() {

@@ -36,17 +36,15 @@ public class DishFlavorServiceImpl implements DishFlavorService {
         }
 
         String cacheName = "dishFlavor_get_" + id;
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
-        //read cache
-        Object result = ops.get(cacheName);
-        if (result != null) {
-            return (List<DishFlavor>) result;
+        Object o = RedisUtil.readCache(cacheName);
+        if (o != null) {
+            return (List<DishFlavor>) o;
         }
 
         List<DishFlavor> dishFlavors = mapper.getFlavorsByDishId(id);
 
         // write cache
-        ops.set(cacheName, dishFlavors);
+        RedisUtil.saveCache(cacheName, dishFlavors);
 
         return new ArrayList<>(dishFlavors);
     }

@@ -39,13 +39,14 @@ public class DishServiceImpl implements DishService {
     @Override
     public Page getPage(int page, int pageSize, String name) {
         String cacheName = "dish_getPage_" + page + "_" + pageSize; //cache name
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();  //redis ops
+
         if (name == null) {
             //    读取缓存
-            Object result = ops.get(cacheName);
-            if (result != null) {
+
+            Object o = RedisUtil.readCache(cacheName);
+            if (o != null) {
                 log.info("读取缓存: {}", cacheName);
-                return (Page) result;
+                return (Page) o;
             }
         }
 
@@ -66,8 +67,7 @@ public class DishServiceImpl implements DishService {
 
         //   创建缓存
         if (name == null) {
-            log.info("创建缓存: {}", cacheName);
-            ops.set(cacheName, result);
+            RedisUtil.saveCache(cacheName, result);
         }
         return result;
     }
@@ -78,15 +78,14 @@ public class DishServiceImpl implements DishService {
     @Override
     public DishDto getById(Long id) {
         String cacheName = "dish_getById_" + id;
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
-        Object result = ops.get(cacheName);
+        Object result = RedisUtil.readCache(cacheName);
         if (result != null) {
             return (DishDto) result;
         }
 
         DishDto dto = mapper.getById(id);
 
-        ops.set(cacheName, dto);
+        RedisUtil.saveCache(cacheName, dto);
         return dto;
     }
 
@@ -129,21 +128,18 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public List<DishDto> getByCategoryId(Long categoryId) {
-        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
         String cacheName = "dish_getByCategoryId_" + categoryId;
 //read
-        List<DishDto> o = (List<DishDto>) ops.get(cacheName);
+        Object o = RedisUtil.readCache(cacheName);
         if (o != null) {
-            log.info("读取缓存: {}", cacheName);
-            return o;
+
+            return (List<DishDto>) o;
         }
 
         List<DishDto> list = mapper.getByCategoryId(categoryId);
 
 //write
-        ops.set(cacheName, list);
-        log.info("写入缓存: {}", cacheName);
-
+        RedisUtil.saveCache(cacheName, list);
         return list;
     }
 }

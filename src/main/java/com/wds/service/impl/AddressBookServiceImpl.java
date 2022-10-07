@@ -94,7 +94,7 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public AddressBook getDefault() {
-        String cacheName = "addressBook_getDefault";
+        String cacheName = "addressBook_getDefault_" + BaseContext.getUserId();
         Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
             return (AddressBook) o;

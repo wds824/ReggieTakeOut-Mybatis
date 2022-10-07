@@ -27,7 +27,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Page getUserPage(int page, int pageSize) {
-        String cacheName = "orders_getUserPage_" + page + "_" + pageSize;
+        String cacheName = "orders_getUserPage_" + page + "_" + pageSize + "_" + BaseContext.getUserId();
         Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
             return (Page) o;
@@ -50,11 +50,15 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Page getPage(int page, int pageSize, Long number, Date begin, Date end) {
-        String cacheName = "orders_getPage_" + page + "_" + pageSize;
-        Object o = CacheUtil.readCache(cacheName);
-        if (o != null) {
-            return (Page) o;
+        String cacheName = null;
+        if (number == null || begin == null || end == null) {
+            cacheName = "orders_getPage_" + page + "_" + pageSize;
+            Object o = CacheUtil.readCache(cacheName);
+            if (o != null) {
+                return (Page) o;
+            }
         }
+
 
         Page result = new Page();
         int count = mapper.getCount();
@@ -72,7 +76,9 @@ public class OrdersServiceImpl implements OrdersService {
         result.setRecords(new ArrayList<>(list));
         result.setPages(count % pageSize == 0 ? count / pageSize : count / pageSize + 1);
 
-        CacheUtil.saveCache(cacheName,result);
+        if (number == null || begin == null || end == null)
+            CacheUtil.saveCache(cacheName, result);
+
         return result;
     }
 

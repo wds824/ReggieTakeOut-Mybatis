@@ -59,6 +59,9 @@ public class AddressBookController {
     @GetMapping("/default")
     public JsonResult getDefault(){
         AddressBook addressBook = service.getDefault();
+        if (addressBook == null) {
+            return null;
+        }
         return JsonResult.ok(addressBook);
     }
 }

@@ -2,6 +2,7 @@ package com.wds.service.impl;
 
 import cn.hutool.db.sql.Order;
 import com.wds.common.BaseContext;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.dto.Page;
 import com.wds.entity.Orders;
 import com.wds.mapper.OrdersMapper;
@@ -26,19 +27,35 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public Page getUserPage(int page, int pageSize) {
+        String cacheName = "orders_getUserPage_" + page + "_" + pageSize;
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (Page) o;
+        }
+
+
         Page result = new Page();
         List<Orders> list = mapper.getUserPage((page - 1) * pageSize, pageSize, BaseContext.getUserId());
         result.setRecords(new ArrayList<>(list));
+
+        CacheUtil.saveCache(cacheName, result);
         return result;
     }
 
     @Override
     public void saveOrder(Orders order) {
+        CacheUtil.clearCache("orders_*");
         mapper.save(order);
     }
 
     @Override
     public Page getPage(int page, int pageSize, Long number, Date begin, Date end) {
+        String cacheName = "orders_getPage_" + page + "_" + pageSize;
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (Page) o;
+        }
+
         Page result = new Page();
         int count = mapper.getCount();
         String strNumber = null;
@@ -46,7 +63,7 @@ public class OrdersServiceImpl implements OrdersService {
             strNumber = "%" + number + "%";
         }
 
-        List<Order> list = mapper.getPage((page - 1) * pageSize, pageSize, strNumber , begin, end);
+        List<Order> list = mapper.getPage((page - 1) * pageSize, pageSize, strNumber, begin, end);
 
         result.setSize(pageSize);
         result.setCurrent(page);
@@ -54,11 +71,14 @@ public class OrdersServiceImpl implements OrdersService {
         result.setTotal(count);
         result.setRecords(new ArrayList<>(list));
         result.setPages(count % pageSize == 0 ? count / pageSize : count / pageSize + 1);
+
+        CacheUtil.saveCache(cacheName,result);
         return result;
     }
 
     @Override
     public void updateStatus(Orders orders) {
+        CacheUtil.clearCache("orders_*");
         mapper.updateStatusById(orders);
     }
 }

@@ -118,8 +118,8 @@ public class OrdersController {
         return JsonResult.ok();
     }
     @PutMapping
-    public JsonResult updateStatus(Orders orders){
+    public JsonResult updateStatus(@RequestBody Orders orders){
         ordersService.updateStatus(orders);
-        return null;
+        return JsonResult.ok();
     }
 }

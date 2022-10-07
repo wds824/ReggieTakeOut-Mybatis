@@ -1,6 +1,10 @@
 package com.wds.service;
 
 import com.wds.dto.SetmealDto;
+import com.wds.entity.Dish;
+import com.wds.entity.SetmealDish;
+
+import java.util.List;
 
 /**
  * @author WDs , wds8.24@outlook.com
@@ -9,4 +13,8 @@ import com.wds.dto.SetmealDto;
  */
 public interface SetMealDishService {
     void updateSetMealDish(SetmealDto dto);
+
+    List<SetmealDish> getDishList(Long id);
+
+    List<Dish> getDishAndImage(Long id);
 }

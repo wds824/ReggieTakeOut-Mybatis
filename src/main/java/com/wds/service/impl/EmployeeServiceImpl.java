@@ -2,8 +2,8 @@ package com.wds.service.impl;
 
 
 import cn.hutool.core.util.IdUtil;
-import com.sun.xml.internal.ws.api.model.MEP;
 import com.wds.common.BaseContext;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.dto.Page;
 import com.wds.entity.Employee;
 import com.wds.exception.CustomException;
@@ -36,6 +36,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Page getPage(int page, int pageSize, String name) {
+        String cacheName = null;
+        if (name == null) {
+            cacheName = "employee_getPage_" + page + "_" + pageSize;
+            Object o = CacheUtil.readCache(cacheName);
+            if (o != null) {
+                return (Page) o;
+            }
+        }
+
         //处理模糊查询
         if (name != null) {
             name = '%' + name + '%';
@@ -54,31 +63,44 @@ public class EmployeeServiceImpl implements EmployeeService {
         result.setPages((double) count / pageSize == 0 ? count / pageSize : count / pageSize + 1);
         result.setTotal(count);
 
+        if (name == null) {
+            CacheUtil.saveCache(cacheName, result);
+        }
         return result;
     }
 
     @Override
     public Employee getById(Long id) {
+        String cacheName = "employee_getById_" + id;
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (Employee) o;
+        }
 
         Employee byId = mapper.getById(id);
 
+        CacheUtil.saveCache(cacheName, o);
         return byId;
     }
 
     @Override
     public void updateById(Employee employee) {
+        CacheUtil.clearCache("employee_*");
+
         employee.setUpdateTime(new Date());
         mapper.updateById(employee);
     }
 
     @Override
     public void addEmployee(Employee employee) {
+        CacheUtil.clearCache("employee_*");
+
         //创建用户和修改用户
         if (BaseContext.getEmpId() == null) {
             throw new CustomException("员工账户状态异常，请重新登录。");
         }
-            employee.setCreateUser(BaseContext.getEmpId());
-            employee.setUpdateUser(BaseContext.getEmpId());
+        employee.setCreateUser(BaseContext.getEmpId());
+        employee.setUpdateUser(BaseContext.getEmpId());
         //雪花算法生成id
         employee.setId(IdUtil.getSnowflakeNextId());
         //默认密码123456

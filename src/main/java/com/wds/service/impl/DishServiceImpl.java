@@ -2,7 +2,7 @@ package com.wds.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
-import com.wds.common.Utils.RedisUtil;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.dto.DishDto;
 import com.wds.dto.Page;
 import com.wds.exception.CustomException;
@@ -10,8 +10,6 @@ import com.wds.mapper.DishMapper;
 import com.wds.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -37,12 +35,13 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public Page getPage(int page, int pageSize, String name) {
-        String cacheName = "dish_getPage_" + page + "_" + pageSize; //cache name
+        String cacheName = null;
 
         if (name == null) {
+            cacheName = "dish_getPage_" + page + "_" + pageSize; //cache name
             //    读取缓存
 
-            Object o = RedisUtil.readCache(cacheName);
+            Object o = CacheUtil.readCache(cacheName);
             if (o != null) {
                 log.info("读取缓存: {}", cacheName);
                 return (Page) o;
@@ -66,7 +65,7 @@ public class DishServiceImpl implements DishService {
 
         //   创建缓存
         if (name == null) {
-            RedisUtil.saveCache(cacheName, result);
+            CacheUtil.saveCache(cacheName, result);
         }
         return result;
     }
@@ -77,20 +76,20 @@ public class DishServiceImpl implements DishService {
     @Override
     public DishDto getById(Long id) {
         String cacheName = "dish_getById_" + id;
-        Object result = RedisUtil.readCache(cacheName);
+        Object result = CacheUtil.readCache(cacheName);
         if (result != null) {
             return (DishDto) result;
         }
 
         DishDto dto = mapper.getById(id);
 
-        RedisUtil.saveCache(cacheName, dto);
+        CacheUtil.saveCache(cacheName, dto);
         return dto;
     }
 
     @Override
     public void update(DishDto dto) {
-        RedisUtil.clearCache("dish_*");
+        CacheUtil.clearCache("dish_*");
 
         dto.setUpdateTime(new Date());
         dto.setUpdateUser(BaseContext.getEmpId());
@@ -103,14 +102,14 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public void updateStatus(List<Long> ids, int status) {
-        RedisUtil.clearCache("dish_*");
+        CacheUtil.clearCache("dish_*");
 
         mapper.updateStatus(ids, status);
     }
 
     @Override
     public void save(DishDto dto) {
-        RedisUtil.clearCache("dish_*");
+        CacheUtil.clearCache("dish_*");
 
         dto.setId(IdUtil.getSnowflakeNextId());
         dto.setCreateTime(new Date());
@@ -120,7 +119,7 @@ public class DishServiceImpl implements DishService {
 
     @Override
     public void removeById(List<Long> list) {
-        RedisUtil.clearCache("dish_*");
+        CacheUtil.clearCache("dish_*");
 
         mapper.delete(list);
     }
@@ -129,7 +128,7 @@ public class DishServiceImpl implements DishService {
     public List<DishDto> getByCategoryId(Long categoryId) {
         String cacheName = "dish_getByCategoryId_" + categoryId;
 //read
-        Object o = RedisUtil.readCache(cacheName);
+        Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
 
             return (List<DishDto>) o;
@@ -138,7 +137,7 @@ public class DishServiceImpl implements DishService {
         List<DishDto> list = mapper.getByCategoryId(categoryId);
 
 //write
-        RedisUtil.saveCache(cacheName, list);
+        CacheUtil.saveCache(cacheName, list);
         return list;
     }
 }

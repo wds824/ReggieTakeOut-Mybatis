@@ -2,14 +2,12 @@ package com.wds.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
-import com.wds.common.Utils.RedisUtil;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.dto.DishDto;
 import com.wds.entity.DishFlavor;
 import com.wds.mapper.DishFlavorMapper;
 import com.wds.service.DishFlavorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -32,8 +30,9 @@ public class DishFlavorServiceImpl implements DishFlavorService {
             return null;
         }
 
+
         String cacheName = "dishFlavor_get_" + id;
-        Object o = RedisUtil.readCache(cacheName);
+        Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
             return (List<DishFlavor>) o;
         }
@@ -41,14 +40,14 @@ public class DishFlavorServiceImpl implements DishFlavorService {
         List<DishFlavor> dishFlavors = mapper.getFlavorsByDishId(id);
 
         // write cache
-        RedisUtil.saveCache(cacheName, dishFlavors);
+        CacheUtil.saveCache(cacheName, dishFlavors);
 
         return new ArrayList<>(dishFlavors);
     }
 
     @Override
     public void updateFlavors(DishDto dto) {
-        RedisUtil.clearCache("dishFlavor_*");
+        CacheUtil.clearCache("dishFlavor_*");
 
         mapper.removeFlavorsByDishId(dto.getId());
         List<DishFlavor> flavors = dto.getFlavors();
@@ -63,7 +62,7 @@ public class DishFlavorServiceImpl implements DishFlavorService {
 
     @Override
     public void saveFlavorsFromDto(DishDto dto) {
-        RedisUtil.clearCache("dishFlavor_*");
+        CacheUtil.clearCache("dishFlavor_*");
 
         List<DishFlavor> flavors = dto.getFlavors();
         for (DishFlavor flavor : flavors) {
@@ -74,7 +73,7 @@ public class DishFlavorServiceImpl implements DishFlavorService {
 
     @Override
     public void removeByDishId(List<Long> list) {
-        RedisUtil.clearCache("dishFlavor_*");
+        CacheUtil.clearCache("dishFlavor_*");
 
         mapper.deleteByDishIds(list);
     }

@@ -2,14 +2,12 @@ package com.wds.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
-import com.wds.common.Utils.RedisUtil;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.dto.Page;
 import com.wds.entity.Category;
 import com.wds.mapper.CategoryMapper;
 import com.wds.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,10 +28,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Page page(int page, int pageSize) {
         String cacheName = "category_Page_" + page + "_" + pageSize;
-        Object o = RedisUtil.readCache(cacheName);
+        Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
             return (Page) o;
         }
+
 
         int count = mapper.count();
         List<Category> categories = mapper.page((page - 1) * pageSize, pageSize);
@@ -47,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
         result.setSize(pageSize);
 
         //write
-        RedisUtil.saveCache(cacheName, result);
+        CacheUtil.saveCache(cacheName, result);
 
         return result;
     }
@@ -58,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public void update(Category category) {
-        RedisUtil.clearCache("category_*");
+        CacheUtil.clearCache("category_*");
 
         category.setUpdateUser(BaseContext.getEmpId());
         category.setUpdateTime(new Date());
@@ -67,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void save(Category category) {
-        RedisUtil.clearCache("category_*");
+        CacheUtil.clearCache("category_*");
 
 
         category.setId(IdUtil.getSnowflakeNextId());
@@ -83,15 +82,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Long id) {
-        RedisUtil.clearCache("category_*");
+        CacheUtil.clearCache("category_*");
 
         mapper.delete(id);
     }
 
     @Override
-    public List<Category> getList(int type) {
+    public List<Category> getList(Integer type) {
         String cacheName = "category_getList_" + type;
-        Object o = RedisUtil.readCache(cacheName);
+        Object o = CacheUtil.readCache(cacheName);
         if (o != null) {
             return (List<Category>) o;
         }
@@ -99,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         List<Category> list = mapper.getList(type);
 
-        RedisUtil.saveCache(cacheName, list);
+        CacheUtil.saveCache(cacheName, list);
         return list;
     }
 }

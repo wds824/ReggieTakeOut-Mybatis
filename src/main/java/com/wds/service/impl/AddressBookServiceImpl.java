@@ -2,6 +2,7 @@ package com.wds.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
+import com.wds.common.Utils.CacheUtil;
 import com.wds.entity.AddressBook;
 import com.wds.mapper.AddressBookMapper;
 import com.wds.service.AddressBookService;
@@ -23,29 +24,51 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public List<AddressBook> getList(Long userId) {
+        String cacheName = "addressBook_getList_" + userId;
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (List<AddressBook>) o;
+        }
+
         List<AddressBook> list = mapper.getList(userId);
+
+        CacheUtil.saveCache(cacheName, list);
         return list;
     }
 
     @Override
     public void setDefault(Long id) {
+        CacheUtil.clearCache("addressBook_*");
+
         mapper.closeDefault(BaseContext.getUserId());
         mapper.setDefault(id);
     }
 
     @Override
     public AddressBook getById(Long id) {
-        return mapper.getById(id);
+        String cacheName = "addressBook_getById_" + id;
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (AddressBook) o;
+        }
 
+        AddressBook book = mapper.getById(id);
+
+        CacheUtil.saveCache(cacheName, book);
+        return book;
     }
 
     @Override
     public void remove(Long ids) {
+        CacheUtil.clearCache("addressBook_*");
+
         mapper.remove(ids);
     }
 
     @Override
     public void update(AddressBook book) {
+        CacheUtil.clearCache("addressBook_*");
+
         book.setUpdateTime(new Date());
         book.setUpdateUser(BaseContext.getUserId());
         mapper.update(book);
@@ -53,6 +76,8 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public void save(AddressBook book) {
+        CacheUtil.clearCache("addressBook_*");
+
         book.setId(IdUtil.getSnowflakeNextId());
 
         Long user = BaseContext.getUserId();
@@ -69,6 +94,15 @@ public class AddressBookServiceImpl implements AddressBookService {
 
     @Override
     public AddressBook getDefault() {
-        return mapper.getDefault(BaseContext.getUserId());
+        String cacheName = "addressBook_getDefault";
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (AddressBook) o;
+        }
+
+        AddressBook book = mapper.getDefault(BaseContext.getUserId());
+
+        CacheUtil.saveCache(cacheName,book);
+        return book;
     }
 }

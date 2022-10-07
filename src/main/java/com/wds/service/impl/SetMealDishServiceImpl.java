@@ -3,6 +3,7 @@ package com.wds.service.impl;
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
 import com.wds.dto.SetmealDto;
+import com.wds.entity.Dish;
 import com.wds.entity.SetmealDish;
 import com.wds.mapper.SetMealDishMapper;
 import com.wds.service.SetMealDishService;
@@ -41,5 +42,17 @@ public class SetMealDishServiceImpl implements SetMealDishService {
             dish.setUpdateUser(user);
         }
         mapper.addNewSetmealDish(dto.getSetmealDishes());
+    }
+
+    @Override
+    public List<SetmealDish> getDishList(Long id) {
+        List<SetmealDish> dishList = mapper.getDishList(id);
+        return dishList;
+    }
+
+    @Override
+    public List<Dish> getDishAndImage(Long id) {
+        List<Dish> dishList = mapper.getDishAndImage(id);
+        return dishList;
     }
 }

@@ -1,5 +1,6 @@
 package com.wds.service.impl;
 
+import com.wds.common.Utils.CacheUtil;
 import com.wds.entity.User;
 import com.wds.mapper.UserMapper;
 import com.wds.service.UserService;
@@ -18,12 +19,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByPhone(User user) {
+        String cacheName = "user_getByPhone_" + user.getPhone();
+        Object o = CacheUtil.readCache(cacheName);
+        if (o != null) {
+            return (User) o;
+        }
+
         User result = mapper.getUserByPhone(user.getPhone());
+
+        CacheUtil.saveCache(cacheName, result);
         return result;
     }
 
     @Override
     public void save(User result) {
+        CacheUtil.clearCache("user_*");
         mapper.save(result);
     }
 }

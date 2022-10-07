@@ -68,6 +68,6 @@
     <select id="getList" resultMap="setMeal">
         select *
         from setmeal
-        where category_id = #{categoryId}
+        where category_id = #{categoryId} and status = 1
     </select>
 </mapper>

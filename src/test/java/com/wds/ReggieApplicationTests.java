@@ -1,5 +1,8 @@
 package com.wds;
 
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidPooledConnection;
+import com.alibaba.druid.sql.ast.SQLKeep;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -7,6 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -51,6 +61,26 @@ class ReggieApplicationTests {
 //        System.out.println(template.keys("*"));
     }
 
+    @Autowired
+    private DataSource dataSource;
+
+    @Test
+    void cleanTest() throws SQLException {
+        ArrayList<String> files = new ArrayList<>();
+//        Connection connection = sqlSession.getConnection();
+//        Statement statement = connection.createStatement();
+        DruidDataSource dataSource = (DruidDataSource) this.dataSource;
+        DruidPooledConnection connection = dataSource.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("select image from dish");
+        while (resultSet.next()) {
+            files.add(resultSet.getString(1));
+        }
+
+
+        System.out.println("files = " + files);
+        sqlSession.close();
+    }
 
 
 }

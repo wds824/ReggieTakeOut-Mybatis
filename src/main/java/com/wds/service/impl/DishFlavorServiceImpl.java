@@ -2,11 +2,14 @@ package com.wds.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import com.wds.common.BaseContext;
+import com.wds.common.Utils.RedisUtil;
 import com.wds.dto.DishDto;
 import com.wds.entity.DishFlavor;
 import com.wds.mapper.DishFlavorMapper;
 import com.wds.service.DishFlavorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,14 +26,35 @@ public class DishFlavorServiceImpl implements DishFlavorService {
     @Autowired
     private DishFlavorMapper mapper;
 
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
+
     @Override
     public List<DishFlavor> getFlavors(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        String cacheName = "dishFlavor_get_" + id;
+        ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
+        //read cache
+        Object result = ops.get(cacheName);
+        if (result != null) {
+            return (List<DishFlavor>) result;
+        }
+
         List<DishFlavor> dishFlavors = mapper.getFlavorsByDishId(id);
+
+        // write cache
+        ops.set(cacheName, dishFlavors);
+
         return new ArrayList<>(dishFlavors);
     }
 
     @Override
     public void updateFlavors(DishDto dto) {
+        RedisUtil.clearCache("dishFlavor_*");
+
         mapper.removeFlavorsByDishId(dto.getId());
         List<DishFlavor> flavors = dto.getFlavors();
         if (flavors.size() != 0) {
@@ -44,6 +68,8 @@ public class DishFlavorServiceImpl implements DishFlavorService {
 
     @Override
     public void saveFlavorsFromDto(DishDto dto) {
+        RedisUtil.clearCache("dishFlavor_*");
+
         List<DishFlavor> flavors = dto.getFlavors();
         for (DishFlavor flavor : flavors) {
             flavor.setId(IdUtil.getSnowflakeNextId());
@@ -53,6 +79,8 @@ public class DishFlavorServiceImpl implements DishFlavorService {
 
     @Override
     public void removeByDishId(List<Long> list) {
+        RedisUtil.clearCache("dishFlavor_*");
+
         mapper.deleteByDishIds(list);
     }
 }

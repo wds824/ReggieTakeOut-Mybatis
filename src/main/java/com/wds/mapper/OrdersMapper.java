@@ -18,9 +18,9 @@ public interface OrdersMapper {
 
     void save(Orders orders);
 
-    int getCount();
+    int getCount(Long number);
 
-    List<Order> getPage(int page, int pageSize, String  number, Date begin, Date end);
+    List<Order> getPage(int page, int pageSize, Long number, Date begin, Date end);
 
     void updateStatusById(Orders orders);
 }

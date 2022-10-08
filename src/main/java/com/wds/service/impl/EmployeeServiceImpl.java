@@ -46,9 +46,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         //处理模糊查询
-        if (name != null) {
-            name = '%' + name + '%';
-        }
 
         Page result = new Page();
         result.setCurrent(page);

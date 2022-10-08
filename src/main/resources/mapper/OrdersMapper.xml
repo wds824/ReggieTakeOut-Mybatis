@@ -33,14 +33,23 @@
     <select id="getCount" resultType="integer">
         select count(id)
         from orders
+        <where>
+            <if test="number != null">
+                <bind name="key" value="'%' + number + '%'"/>
+                number like #{key}
+            </if>
+        </where>
     </select>
     <select id="getPage" resultMap="orders">
-        SELECT o.id, o.number,o.`status`,o.user_id,o.address_book_id,o.order_time,o.checkout_time,o.pay_method,o.amount,o.remark,o.phone,o.address,o.consignee,u.name user_name
+        SELECT o.id,
+        o.number,o.`status`,o.user_id,o.address_book_id,o.order_time,o.checkout_time,o.pay_method,o.amount,o.remark,o.phone,o.address,o.consignee,u.name
+        user_name
         FROM orders o
         left JOIN user u on u.id = o.user_id
         <where>
             <if test="number != null">
-                number like #{number}
+                <bind name="key" value="'%' + number + '%'"/>
+                number like #{key}
             </if>
             <if test="begin != null and end != null">
                 order_time between #{begin} and #{end}

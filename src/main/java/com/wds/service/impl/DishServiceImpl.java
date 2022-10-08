@@ -49,11 +49,11 @@ public class DishServiceImpl implements DishService {
         }
 
 
-        if (name != null) {
-            name = "%" + name + "%";
-        }
+//        if (name != null) {
+//            name = "%" + name + "%";
+//        }
         List<DishDto> list = mapper.getPage((page - 1) * pageSize, pageSize, name);
-        int count = mapper.getCount();
+        int count = mapper.getCount(name);
 
         Page result = new Page();
         result.setRecords(new ArrayList<>(list));

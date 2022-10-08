@@ -51,7 +51,7 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public Page getPage(int page, int pageSize, Long number, Date begin, Date end) {
         String cacheName = null;
-        if (number == null || begin == null || end == null) {
+        if (number == null && begin == null && end == null) {
             cacheName = "orders_getPage_" + page + "_" + pageSize;
             Object o = CacheUtil.readCache(cacheName);
             if (o != null) {
@@ -61,13 +61,10 @@ public class OrdersServiceImpl implements OrdersService {
 
 
         Page result = new Page();
-        int count = mapper.getCount();
-        String strNumber = null;
-        if (number != null) {
-            strNumber = "%" + number + "%";
-        }
+        int count = mapper.getCount(number);
 
-        List<Order> list = mapper.getPage((page - 1) * pageSize, pageSize, strNumber, begin, end);
+
+        List<Order> list = mapper.getPage((page - 1) * pageSize, pageSize, number, begin, end);
 
         result.setSize(pageSize);
         result.setCurrent(page);
@@ -76,7 +73,7 @@ public class OrdersServiceImpl implements OrdersService {
         result.setRecords(new ArrayList<>(list));
         result.setPages(count % pageSize == 0 ? count / pageSize : count / pageSize + 1);
 
-        if (number == null || begin == null || end == null)
+        if (number == null && begin == null && end == null)
             CacheUtil.saveCache(cacheName, result);
 
         return result;

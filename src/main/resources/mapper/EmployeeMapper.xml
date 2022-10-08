@@ -69,7 +69,8 @@
         from employee
         <where>
             <if test="name != null">
-                name like #{name}
+                <bind name="key" value="'%' + name +'%'"/>
+                name like #{key}
             </if>
         </where>
         order by update_time desc
@@ -81,7 +82,8 @@
         from employee
         <where>
             <if test="name != null">
-                name like #{name}
+                <bind name="key" value="'%' + name +'%'"/>
+                name like #{key}
             </if>
             and status = 1
         </where>

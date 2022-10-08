@@ -1,7 +1,6 @@
 package com.wds.mapper;
 
 import com.wds.dto.DishDto;
-import com.wds.entity.Category;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 public interface DishMapper {
     List<DishDto> getPage(int page, int pageSize, String name);
 
-    int getCount();
+    int getCount(String name);
 
     DishDto getById(Long id);
 

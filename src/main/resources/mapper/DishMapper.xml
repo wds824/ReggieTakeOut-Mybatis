@@ -50,6 +50,10 @@
         select count(id)
         from dish
         where is_deleted = 0
+        <if test="name != null">
+            <bind name="key" value="'%' + name +'%'"/>
+            and name like #{key}
+        </if>
     </select>
     <select id="getPage" resultMap="dishDto">
         select d.id, d.name, d.category_id, d.price, d.code, d.image, d.description, d.status, d.sort, d.create_time, d.update_time, d.create_user, d.update_user ,c.name categoryName
@@ -57,7 +61,8 @@
         right join category c on d.category_id = c.id
         where is_deleted = 0
             <if test="name != null">
-                and d.name like #{name}
+                <bind name="key" value="'%' + name + '%'"/>
+                and d.name like #{key}
             </if>
         order by sort desc, update_time desc
         limit #{page},#{pageSize}

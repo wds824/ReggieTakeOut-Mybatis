@@ -16,4 +16,4 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
 
 reggie:
-  basePath: /root/upload/img/
+  basePath: /upload/img/

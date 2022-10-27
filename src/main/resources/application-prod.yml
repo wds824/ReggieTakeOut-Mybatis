@@ -1,0 +1,19 @@
+server:
+  port: 80
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/reggie?useSSL=false
+    username: root
+    password: 123456
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+
+mybatis:
+#  指定 mybatis mapper文件位置
+  mapper-locations: classpath:mapper/*.xml
+
+reggie:
+  basePath: /root/upload/img/
